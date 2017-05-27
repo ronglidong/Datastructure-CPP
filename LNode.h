@@ -12,21 +12,37 @@ public:
 	LinkNode(): length(0), listSize(0), data(0) { }
 	LinkNode(const T &elem);
 	LinkNode(const T &elem, unsigned num): length(0), listSize(0), data(0) { for (unsigned i = 0; i != num; ++i) Insert(elem, i); }
-	~LinkNode() { clear(); }
+	// operator+ 将调用拷贝构造函数 
+	LinkNode(const LinkNode<T> &l);
+	~LinkNode() { Clear(); }
 	void Insert(const T &elem, unsigned pos);
 	void Delete(unsigned pos);
-	void clear();
+	void Clear();
 	unsigned GetLength() const { return length; }
 	unsigned GetListSize() const { return listSize; }
 	void PushBack(const T &elem);
-	T &Back() { return Locate(length - 1); }
+	T &Back() const { return Locate(length - 1); }
 	T &operator[](unsigned pos) const { return Locate(pos)->data; }
 	// 类外定义的友元不能使用私有成员
+	LinkNode<T> &operator=(const LinkNode<T> &l);
+	friend LinkNode<T> operator+(const LinkNode<T> &a, const LinkNode<T> &b)
+	{
+		LinkNode<T> total;
+		unsigned la = a.GetLength();
+		unsigned lb = la + b.GetLength();
+
+		for (unsigned i = 0; i != la; ++i)
+			total.Insert(a.Locate(i)->data, i);
+		for (unsigned i = la, j = 0; i != lb; ++i, ++j)
+			total.Insert(b.Locate(j)->data, i);
+		std::cout << total;
+		return total;
+	}
 	friend std::ostream &operator<<(std::ostream &os, const LinkNode<T> &l)
 	{
 		for (unsigned i = 0; i != l.length; ++i) {
 			PNode temp = l.Locate(i);
-			os << i << ":pointer:" << temp << "data:" << temp->data << "next:" << temp->next << ' ';
+			os << i << '/' << l.length << ":pointer:" << temp << "data:" << temp->data << "next:" << temp->next << ' ';
 		}
 		return os;
 	}
@@ -63,6 +79,13 @@ typename LinkNode<T>::PNode LinkNode<T>::Locate(unsigned pos) const
 	return p;
 }
 template <typename T>
+LinkNode<T>::LinkNode(const LinkNode<T> &l)
+{
+	length = listSize = 0;
+	for (unsigned i = 0; i != l.length; ++i)
+		Insert(l.Locate(i)->data, i);
+}
+template <typename T>
 void LinkNode<T>::Insert(const T &elem, unsigned pos)
 {
 	PNode newElem = new Node();
@@ -94,7 +117,7 @@ void LinkNode<T>::Delete(unsigned pos)
 	listSize -= sizeof(Node);
 }
 template <typename T>
-void LinkNode<T>::clear()
+void LinkNode<T>::Clear()
 {
 	PNode p = data;
 	for (unsigned i = 0; p; ++i) {
@@ -116,6 +139,14 @@ void LinkNode<T>::PushBack(const T &elem)
 	p->next = 0;
 	++length;
 	listSize += sizeof(Node);
+}
+template <typename T>
+LinkNode<T> &LinkNode<T>::operator=(const LinkNode<T> &l)
+{
+	Clear();
+	for (unsigned i = 0; i != l.length; ++i)
+		Insert(l.Locate(i)->data, i);
+	return *this;
 }
 #endif // LINKNODE_H_
 
