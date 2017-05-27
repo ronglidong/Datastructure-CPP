@@ -2,7 +2,6 @@
 #define LINKNODE_H_
 #include <iostream>
 #include <stdexcept>
-#include <vector>
 
 static const std::string notFound("Not found this element!");
 static const std::string AllocateMemoryFailed("Allocate memory failed");
